@@ -1,0 +1,35 @@
+.card-swipe {
+  .swiper-pagination-bullet-active {
+    background: #07dfeb !important;
+  }
+  .swiper-pagination-bullet {
+    background: #ddd !important;
+  }
+}
+
+.form-codeNume {
+  .yd-btn.btn-disabled {
+    color: #ccc !important;
+  }
+}
+
+body {
+  .yd-cell-left {
+    width: 20%;
+    min-width: 80px;
+  }
+  .yd-cell-right select{
+    text-indent: 4px;
+    color: #555;
+  }
+}
+
+
+.yd-cell-right{
+  .yd-textarea-counter{    
+      font-size: 12px;
+      color: #b2b2b2;
+      text-align: right;
+      padding-top: 3px;
+  }
+}
