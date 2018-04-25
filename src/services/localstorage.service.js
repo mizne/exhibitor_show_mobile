@@ -25,6 +25,22 @@ class LocalStorageService {
   getToken() {
     return localStorage.getItem('Token')
   }
+
+  setExpiresIn(expiresIn) {
+    localStorage.setItem('ExpiresIn', Date.now() + Number(expiresIn) * 1000)
+  }
+
+  getExpiresIn() {
+    return Number(localStorage.getItem('ExpiresIn'))
+  }
+
+  setOpenID(openid) {
+    localStorage.setItem('OpenID', openid)
+  }
+
+  getOpenID() {
+    return localStorage.getItem('OpenID') || ''
+  }
 }
 
 export default new LocalStorageService()
