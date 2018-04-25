@@ -41,7 +41,6 @@ export default {
         }
       })
       .catch(res => {
-        debugger
         if (res.response.status === 401) {
           // token无效 清除localStorage
           const compId = localStorage.getItem('compId')
