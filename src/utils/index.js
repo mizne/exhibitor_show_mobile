@@ -16,4 +16,9 @@ function objFrom(search) {
   }, {})
 }
 
-export { objFrom }
+function appendQuery(url, key, value) {
+  const hasQuery = url.indexOf('?') > -1
+  return hasQuery ? url + `&${key}=${value}` : url + `?${key}=${value}`
+}
+
+export { objFrom, appendQuery }

@@ -13,6 +13,8 @@ class CompanyService {
   getShareDesc(id) {
     return axios.get(`/api/company/share/:${id}`)
   }
+
+  isZan() {}
 }
 
 export default new CompanyService()

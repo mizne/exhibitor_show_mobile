@@ -9,11 +9,6 @@
 import Vue from 'vue'
 export default {
   name: 'questToken',
-  data() {
-    return {
-      counNum: 1
-    }
-  },
   created() {
     this.questLogin()
   },

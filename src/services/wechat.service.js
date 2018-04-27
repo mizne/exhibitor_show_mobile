@@ -2,8 +2,8 @@ import axios from 'axios'
 import local from './localstorage.service'
 
 class WechatService {
-  getJsConfig(...args) {
-    return axios.get(...args)
+  getJsConfig() {
+    return axios.get('/oauth/wechat-jsconfig')
   }
 
   getJsConfigShare(url) {

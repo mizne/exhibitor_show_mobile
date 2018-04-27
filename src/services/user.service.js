@@ -3,25 +3,25 @@ import local from './localstorage.service'
 
 class UserService {
   getUserInfo() {
-    const token = local.getToken()
-    const openid = local.getOpenID()
-    console.log(openid)
-    return axios.post('/v2/data/login', {
-      params: {
-        IfTheirdLogin: true,
-        Type: '2',
-        OpenId: openid,
-        ExhibitionId: '5aab63fb98370439255c0df1'
-      }
-    })
+    const exhibitionId = local.getExhibitionID()
+    return axios
+      .post(`/v2/data/GetUserInfo`, {
+        params: {
+          Type: '2',
+          ExhibitionId: exhibitionId,
+          ServiceType: 'ExhibitorShow'
+        }
+      })
+      .then(res => {
+        if (res.data.resCode === 0) {
+          return res.data.result
+        }
+        return Promise.reject(new Error(res.data.resMsg))
+      })
   }
 
   updateUserInfo(params) {
-    return axios.put('/api/userinfo', params, {
-      headers: {
-        Authorization: local.getToken()
-      }
-    })
+    return axios.put('/api/userinfo', params)
   }
 }
 

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { appendQuery } from '../utils'
 import activityService from './activity.service'
 import companyService from './company.service'
 import customerService from './customer.service'
@@ -16,6 +17,20 @@ import userService from './user.service'
 import wechatService from './wechat.service'
 
 axios.defaults.baseURL = 'http://huizhanren.xiaovbao.cn'
+
+axios.interceptors.request.use(
+  function(config) {
+    const token = localstorageService.getToken()
+    const url = appendQuery(config.url, 'token', token)
+    return {
+      ...config,
+      url
+    }
+  },
+  function(error) {
+    return Promise.reject(error)
+  }
+)
 
 export {
   activityService,

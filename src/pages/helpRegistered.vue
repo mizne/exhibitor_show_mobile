@@ -1,5 +1,5 @@
 <template>
-    <div class="goods-box"> 
+    <div class="goods-box">
       <img :src="userInfo.HeadImgUrl" :alt="userInfo.NickName">
         <p>{{userInfo.NickName}}</p>
 
@@ -13,7 +13,7 @@
               <yd-cell-item>
                   <span slot="left">手机</span>
                   <yd-input slot="right" ref="mobReg" v-model="form.Mob" placeholder="请输入手机" regex="mobile" required></yd-input>
-              </yd-cell-item> 
+              </yd-cell-item>
 
               <yd-cell-item class="form-codeNume">
                   <span slot="left">验证码</span>
@@ -33,7 +33,7 @@
               <yd-cell-item>
                   <span slot="left">职务</span>
                   <yd-input slot="right" v-model="form.JobTitle" placeholder="请输入职务" required></yd-input>
-              </yd-cell-item> 
+              </yd-cell-item>
 
 
               <yd-cell-item arrow>
@@ -51,142 +51,157 @@
 </template>
 
 <script>
-import { CellGroup, CellItem } from "vue-ydui/dist/lib.px/cell";
-import District from "ydui-district/dist/jd_province_city_area_id";
+import { CellGroup, CellItem } from 'vue-ydui/dist/lib.px/cell'
+import District from 'ydui-district/dist/jd_province_city_area_id'
+import { localstorageService } from '../services'
 
 export default {
   data() {
     return {
       // 表单
       form: {
-        Name: "",
-        Mob: "",
-        CompName: "",
+        Name: '',
+        Mob: '',
+        CompName: '',
         // 城市选择
-        JobTitle: "",
-        Province: "",
-        City: ""
+        JobTitle: '',
+        Province: '',
+        City: ''
       },
-      mobReg: "",
-      codeNum: "",
+      mobReg: '',
+      codeNum: '',
       district: District,
       addrShow: false,
-      codeTxt: "请输入手机验证码",
+      codeTxt: '请输入手机验证码',
       codeTimer: false,
-      formError: "",
+      formError: '',
       mesValid: false
-    };
+    }
   },
   methods: {
     sendCode() {
-        if (this.form.Mob.trim() === '') {
-            this.$dialog.toast({
-                mes: "手机号码不能为空",
-                icon: "error",
-                timeout: 1000
-            });
-            return;
-        }
-        this.$dialog.loading.open("发送中...");
-        this.$http.post('/api/basic/validate/sms/send', {phone: this.form.Mob}, this.headers).then(data => {
-            this.codeTimer = true;
-            this.$dialog.loading.close();
-            this.$dialog.toast({
-                mes: "已发送",
-                icon: "success",
-                timeout: 1000
-            });
-        }).catch(err => {
-            this.codeTimer = false;
-            this.$dialog.loading.close();
-            this.$dialog.toast({
-                mes: "发送失败，请重新点击发送",
-                icon: "success",
-                timeout: 1000
-            });
-        });
+      if (this.form.Mob.trim() === '') {
+        this.$dialog.toast({
+          mes: '手机号码不能为空',
+          icon: 'error',
+          timeout: 1000
+        })
+        return
+      }
+      this.$dialog.loading.open('发送中...')
+      this.$http
+        .post(
+          '/api/basic/validate/sms/send',
+          { phone: this.form.Mob },
+          this.headers
+        )
+        .then(data => {
+          this.codeTimer = true
+          this.$dialog.loading.close()
+          this.$dialog.toast({
+            mes: '已发送',
+            icon: 'success',
+            timeout: 1000
+          })
+        })
+        .catch(err => {
+          this.codeTimer = false
+          this.$dialog.loading.close()
+          this.$dialog.toast({
+            mes: '发送失败，请重新点击发送',
+            icon: 'success',
+            timeout: 1000
+          })
+        })
     },
     citySelect(ret) {
-      this.form.Province = ret.itemName1;
-      this.form.City = ret.itemName2 + " " + ret.itemName3;
+      this.form.Province = ret.itemName1
+      this.form.City = ret.itemName2 + ' ' + ret.itemName3
     },
     submitValue() {
-      let values = Object.values(this.form).includes(""); // 判断value 是否含有空值 为布尔值
+      let values = Object.values(this.form).includes('') // 判断value 是否含有空值 为布尔值
       if (values) {
-          this.$dialog.toast({
-            mes: "验证未通过，请确认输入",
-            timeout: 1000
-          });
-          return;
+        this.$dialog.toast({
+          mes: '验证未通过，请确认输入',
+          timeout: 1000
+        })
+        return
       }
       if (this.codeNum.trim() === '') {
-          this.$dialog.toast({
-              mes: "验证不能为空",
-              icon: "error",
-              timeout: 1000
-          });
-          return;
+        this.$dialog.toast({
+          mes: '验证不能为空',
+          icon: 'error',
+          timeout: 1000
+        })
+        return
       }
       const body = {
-          "phone": this.form.Mob,
-          "code": this.codeNum
-      };
-      this.$http.post('/api/basic/validate/sms/check', body).then((data) => {
-          if (data.data.Data.result) {
-            if (!values && this.$refs.mobReg.valid) {
-              const body = {
-                SetValues: {
-                  ...this.form,
-                  Id: this.userInfo.Id,
-                  IsConfirm: true
-                }
-              };
-              console.log(body, this.token);
-              this.$http.put("/api/userinfo", body, this.headers).then(({data}) => {
-                if(data.StatusCode === 200 && data.Data.result){
-                    const userInfo = Object.assign({}, this.userInfo, this.form);
-                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
-                    this.$store.commit('setUserInfo', {userInfo: userInfo});
-                    this.$router.push({path: '/helpPay'});
-                }
-              });
+        phone: this.form.Mob,
+        code: this.codeNum
+      }
+      this.$http.post('/api/basic/validate/sms/check', body).then(data => {
+        if (data.data.Data.result) {
+          if (!values && this.$refs.mobReg.valid) {
+            const body = {
+              SetValues: {
+                ...this.form,
+                Id: this.userInfo.Id,
+                IsConfirm: true
+              }
             }
-          } else {
-              this.$dialog.toast({
-                  mes: "手机号码验证未通过",
-                  icon: "error",
-                  timeout: 1000
-              });
+            console.log(body, this.token)
+            this.$http
+              .put('/api/userinfo', body, this.headers)
+              .then(({ data }) => {
+                if (data.StatusCode === 200 && data.Data.result) {
+                  const userInfo = Object.assign({}, this.userInfo, this.form)
+                  localstorageService.setUserInfo(userInfo)
+                  this.$store.commit('setUserInfo', { userInfo: userInfo })
+                  this.$router.push({ path: '/helpPay' })
+                }
+              })
           }
-      });
-
-    },
+        } else {
+          this.$dialog.toast({
+            mes: '手机号码验证未通过',
+            icon: 'error',
+            timeout: 1000
+          })
+        }
+      })
+    }
   },
   created() {
-    document.title = "注册";
-    if (this.token === '') { // 如果没有token 则请求token 并重定向到 原链接
-        this.$router.push({path: '/questToken'});
-        localStorage.setItem('redirectTo', 'help');
+    document.title = '注册'
+    if (this.token === '') {
+      // 如果没有token 则请求token 并重定向到 原链接
+      this.$router.push({ path: '/questToken' })
+      localstorageService.setRedirectUrl('help')
     }
     if (this.userInfo.IsConfirm) {
-        this.$router.push({path: '/helpPay'});
+      this.$router.push({ path: '/helpPay' })
     }
   },
   computed: {
     userInfo() {
-      return this.$store.getters.getUserinfo;
+      return this.$store.getters.getUserinfo
     },
     token() {
-      return this.$store.getters.getToken;
+      return this.$store.getters.getToken
     },
     headers() {
-      return {headers: {'Authorization': this.token, 'Content-Type': 'application/json'}};
+      return {
+        headers: {
+          Authorization: this.token,
+          'Content-Type': 'application/json'
+        }
+      }
     },
     addr() {
-      return this.form.Province + this.form.City;
+      return this.form.Province + this.form.City
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 .goods-box {
@@ -202,7 +217,7 @@ export default {
     height: 4.125rem;
     border-radius: 50%;
   }
-  &>p{
+  & > p {
     line-height: 1.5em;
   }
   .registered {

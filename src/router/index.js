@@ -4,8 +4,6 @@ import Invite from '@/pages/invite' // 邀请函
 
 import detailed from '@/pages/detailed' // 活动详情
 
-import works from '@/pages/works' // 作品列表
-
 import help from '@/pages/helpRegistered' // 助力注册
 import goods from '@/pages/goodsRegistered' // 助力用户完成页面
 
@@ -29,11 +27,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/compid/31ef22e8-09a4-43f1-9d1f-02d3632c1c29'
+      redirect:
+        '/company?companyId=5ab22d7fd8d2b4783bfb7add&exhibitionId=5ab22555d8d2b4783bfb7337'
     },
     {
-      path: '/compid/:id',
-      name: 'compid',
+      path: '/company',
+      name: 'company',
       component: Invite
     },
     {
@@ -75,11 +74,6 @@ export default new Router({
       path: '/detailed/:id',
       name: 'detailed',
       component: detailed
-    },
-    {
-      path: '/works',
-      name: 'works',
-      component: works
     },
     {
       path: '/company_info',

@@ -6,48 +6,28 @@
 </template>
 
 <script>
-import { localstorageService, userService } from '../services'
+import { localstorageService, userService, lookerService } from '../services'
 import { objFrom } from '../utils'
 
 export default {
   name: 'questFinish',
-  data() {
-    return {}
-  },
   created() {
     const obj = objFrom(location.search)
-    localstorageService.setToken('Bearer ' + obj.access_token)
-    localstorageService.setOpenID(obj.openid)
+    localstorageService.setToken(obj.access_token)
     localstorageService.setExpiresIn(obj.expires_in)
 
-    this.$store.commit('setToken', { token: obj.access_token })
-    // 请求成功后 获取用户信息
-    userService
-      .getUserInfo()
-      .then(({ data }) => {
-        if (data.StatusCode === 200) {
-          this.$store.commit('setUserInfo', { userInfo: data.Data })
+    var redirectTo = localstorageService.getRedirectUrl() // 获取重定向地址
+    localstorageService.removeRedirectUrl() // 清空
 
-          var redirectTo = localStorage.getItem('redirectTo') // 获取重定向地址
-          localStorage.removeItem('redirectTo') // 清空
-
-          if (redirectTo && redirectTo !== '') {
-            this.$router.push({ path: '/' + redirectTo }) // 如果有链接直接连接到重定向
-          } else {
-            this.$router.push({
-              path: '/compid/' + this.$store.getters.getCompId
-            }) // 反之链接到首页
-          }
-        }
-      })
-      .catch(res => {
-        if (res.response.status === 401) {
-          // token无效 清除localStorage
-          const compId = localStorage.getItem('compId')
-          localStorage.clear()
-          localStorage.setItem('compId', compId)
-        }
-      })
+    if (redirectTo && redirectTo !== '') {
+      this.$router.push({ path: '/' + redirectTo }) // 如果有链接直接连接到重定向
+    } else {
+      this.$router.push({
+        path:
+          '/company' +
+          `?companyId=${localstorageService.getExhibitorID()}exhibitionId=${localstorageService.getExhibitionID()}`
+      }) // 反之链接到首页
+    }
   }
 }
 </script>

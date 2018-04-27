@@ -19,7 +19,7 @@
                     <p class="title">诚邀您为我助力并莅临展台</p>
                     <span class="u-btn btn-linaer addr"><i class="icon iconfont icon-dot"></i>{{inviteData.Booth}}</span>
                     <p class="sub-title">{{inviteData.ExName}}</p>
-                    <p class="date">{{startDate}} ~ {{endDate}} {{inviteData.ExAddr}}</p>
+                    <p class="date">{{inviteData.ExStartDate}} ~ {{inviteData.ExEndDate}} {{inviteData.ExAddr}}</p>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
                 <p>{{inviteData.Introduction}}</p>
             </div>
         </div>
-        <div class="card-carousel" v-if="!!cardList.length">
+        <div class="card-carousel" v-if="!!productList.length">
             <div class="card-bg"  >
                 <img src="../assets/img/invite/bg-3.jpg">
             </div>
@@ -42,7 +42,7 @@
                 <router-link :to="'/productAll'">
                     <p class="title">全部产品</p>
                 </router-link>
-                <Card3d :product="cardList"></Card3d>
+                <Card3d :product="productList"></Card3d>
             </div>
         </div>
         <div class="card card-activity" v-if="!!activityList.length"><!--  活动 -->
@@ -53,17 +53,17 @@
                 <router-link v-for="(activity, index) in activityList" :key="'activity' + index" :to="'/detailed/' + activity.Id">
                     <div class="card-list">
                         <span class="u-circle">
-                            <i class="icon iconfont" :class="{'icon-start': index%2 === 0, 'icon-ball': index%2 === 1}" ></i>
+                            <i class="icon iconfont" :class="{'icon-start': index % 2 === 0, 'icon-ball': index % 2 === 1}" ></i>
                         </span>
                         <div class="card-list_item">
                             <h4>{{activity.Name}}</h4>
-                            <div class="list-info">{{activityStartDate[index]}} ~ {{activityEndDate[index]}}</div>
+                            <div class="list-info">{{activity.StartDate}} ~ {{activity.EndDate}}</div>
                         </div>
                     </div>
                 </router-link>
             </div>
-            <div class="m-loadmore" v-bind:class="{ load: loadActivity }"  v-if="activityList.length!==activityCount">
-                <span class="default" v-on:click="myloadMore('loadActivity')" @click="loadingActivity" v-if="showA">更多</span>
+            <div class="m-loadmore" v-bind:class="{ load: loadingActivity }"  v-if="activityList.length !== activityTotalCount">
+                <span class="default" v-on:click="myloadMore('loadingActivity')" @click="loadMoreActivity" v-if="neddLoadMoreActivities">更多</span>
                 <loading></loading>
             </div>
         </div>
@@ -72,33 +72,33 @@
                 <img src="../assets/img/invite/bg-5.jpg">
             </div>
             <div class="card-head-box" >
-                <h4 class="u-txt_gradient">共{{HelpCount}}人助力</h4>
+                <h4 class="u-txt_gradient">共{{helpTotalCount}}人助力</h4>
                 <div class="card-head_container">
                     <div class="card-head-list" v-for="(help, index) in helpList" :key="'help' + index">
-                        <img :src="JSON.parse(help.Users).HeadImgUrl" >
-                        <p>{{JSON.parse(help.Users).NickName}}</p>
+                        <img :src="help.HeadImgUrl">
+                        <p>{{help.NickName}}</p>
                     </div>
                 </div>
             </div>
-            <div class="m-loadmore" v-bind:class="{ load: loadStong }" v-if="helpList.length!==HelpCount">
-                <span class="default" v-on:click="myloadMore('loadStong')" v-if="showH" @click="loadingHelp">更多</span>
+            <div class="m-loadmore" v-bind:class="{ load: loadingHelp }" v-if="helpList.length !== helpTotalCount">
+                <span class="default" v-on:click="myloadMore('loadingHelp')" v-if="needLoadMoreHelp" @click="loadMoreHelp">更多</span>
                 <loading></loading>
             </div>
         </div>
-        <div class="card-head2" v-if="!!onlookers.length"> <!--围观-->
+        <div class="card-head2" v-if="!!lookers.length"> <!--围观-->
             <div class="card-bg">
                 <img src="../assets/img/invite/bg-6.jpg">
             </div>
             <div class="card-head-box" >
-                <h4 class="u-txt_gradient" style="margin-top:10px;">共{{FollowerCount}}人围观</h4>
-                <div class="card-head_container" v-if="onlookers">
-                    <div class="card-head-list2" v-for="(item, index) in onlookers" :key="'peo' + index">
-                        <img :src="JSON.parse(item.Users).HeadImgUrl" >
+                <h4 class="u-txt_gradient" style="margin-top:10px;">共{{lookerTotalCount}}人围观</h4>
+                <div class="card-head_container" v-if="lookers">
+                    <div class="card-head-list2" v-for="(item, index) in lookers" :key="'peo' + index">
+                        <img :src="item.HeadImgUrl" >
                     </div>
                 </div>
             </div>
-            <div class="m-loadmore" v-bind:class="{ load: loadPeople }" v-if="onlookers.length>9">
-                <span class="default" v-on:click="myloadMore('loadPeople')" v-if="showLook" @click="loadingLookers">更多</span>
+            <div class="m-loadmore" v-bind:class="{ load: loadingLooker }" v-if="lookers.length>9">
+                <span class="default" v-on:click="myloadMore('loadingLooker')" v-if="needLoadMoreLooker" @click="loadMoreLookers">更多</span>
                 <loading></loading>
             </div>
         </div>
@@ -112,39 +112,19 @@
                 <div class="three-circle"><img src="../assets/img/invite/circle-3.png"></div>
                 <div class="two-circle"><img src="../assets/img/invite/circle-2.png"></div>
                 <div class="one-circle"><img src="../assets/img/invite/circle-1-1.png"></div>
-                <div class="myheart" v-on:click="dzClick()">
-                    <img v-if="!isLike" src="../assets/img/invite/myheart.png"><!-- 心 -->
-                    <img v-if="isLike" src="../assets/img/invite/myheart-like.png"><!-- 心 -->
+                <div class="myheart" v-on:click="doLike()">
+                    <img v-if="!hasLike" src="../assets/img/invite/myheart.png"><!-- 心 -->
+                    <img v-if="hasLike" src="../assets/img/invite/myheart-like.png"><!-- 心 -->
                 </div>
             </div>
-            <div class="many-like u-txt_gradient">共{{ZanCount}}个人点赞</div>
+            <div class="many-like u-txt_gradient">共{{likeTotalCount}}个人点赞</div>
             <div class="who-like">
-            <span v-for="(pra, index) in praiseList" :key="'zan' + index">{{pra.NickName}}</span>
+            <span v-for="(like, index) in likeList" :key="'zan' + index">{{like.NickName}}</span>
             </div>
-            <!-- <div class="m-loadmore" v-bind:class="{ load: loadpraise }">
-                <span class="default" v-on:click="myloadMore('loadpraise')" v-if="praiseShow" @click="loadingPraise">更多</span>
-                <loading></loading>
-            </div> -->
         </div>
 
         <div class="support" v-on:click="helpHe()"><span class="u-txt_gradient">支持TA</span></div>
 
-        <!-- 展会选择 -->
-        <!-- <yd-popup v-model="togglePop" position="bottom" width="90%" class="pop-up">
-            <div class="pop-title">
-                <span v-on:click="togglePop = false">关闭</span>
-            </div>
-            <div class="pop-content">
-                <div class="pop-btn-box">
-                    <div class="pop-btn_item" @click="helpHe()">
-                        <span class="u-circle"><i class="icon iconfont icon-rmb"></i></span>
-                        <p>助力</p>
-                    </div>
-                </div>
-                <span class="u-btn btn-linaer" @click="buildPro()">我也要制作</span>
-            </div>
-            <div class="footer-txt">Powered by huizhanren.com</div>
-        </yd-popup> -->
     </div>
 </template>
 
@@ -158,6 +138,19 @@ import CardBorder from '../components/card-border.vue'
 import loading from '../components/loading.vue'
 import Card3d from '../components/card-3d.vue'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
+import {
+  localstorageService,
+  wechatService,
+  userService,
+  productService,
+  exhibitorService,
+  exhibitionService,
+  activityService,
+  helpService,
+  likeService,
+  lookerService
+} from '../services'
+import { objFrom } from '../utils'
 
 export default {
   name: 'invite',
@@ -171,38 +164,32 @@ export default {
           el: '.swiper-pagination'
         }
       },
-      popupVisible: false,
-      loadActivity: false,
-      loadStong: false,
-      loadPeople: false,
-      loadpraise: false,
-      togglePop: false, // 助力弹出
+
+      activityList: [],
+      activityPageIndex: 1,
+      activityTotalCount: 0,
+      loadingActivity: false,
+      neddLoadMoreActivities: true,
+
+      helpList: [],
+      helpPageIndex: 1,
+      helpTotalCount: 0,
+      loadingHelp: false,
+      needLoadMoreHelp: true,
+
+      lookers: [],
+      lookerPageIndex: 1,
+      lookerTotalCount: 0,
+      loadingLooker: false,
+      needLoadMoreLooker: true,
+
       inviteData: '',
       banner: '',
-      startDate: '',
-      endDate: '',
-      cardList: '',
-      activityList: '',
-      activityStartDate: [],
-      activityEndDate: [],
-      count: 0,
-      showA: true,
-      helpList: '',
-      showH: true,
-      hcoun: 1,
-      onlookers: '',
-      showLook: true,
-      lookCount: 1,
-      praiseList: [],
-      praiseShow: true,
-      praiseCount: 1,
-      myCurrentUser: '',
-      isLike: false,
-      counNum: 1,
-      activityCount: 0,
-      HelpCount: 0,
-      FollowerCount: 0,
-      ZanCount: 0
+      productList: [],
+
+      hasLike: false,
+      likeList: [],
+      likeTotalCount: 0
     }
   },
   components: {
@@ -213,13 +200,6 @@ export default {
     loading
   },
   computed: {
-    token() {
-      return this.$store.getters.getToken
-    },
-
-    compId() {
-      return this.$router.history.current.params.id
-    },
     IsConfirm() {
       // 获取助力用户是否注册
       return this.$store.getters.getIsConfirm
@@ -230,11 +210,17 @@ export default {
     }
   },
   created() {
-    this.$store.commit('setCompId', { compId: this.compId })
-    localStorage.setItem('compId', this.compId)
-    this.invite()
-    this.currentUser()
-    this.msgConfig() // 获取wx config
+    const obj = objFrom(location.search)
+    localstorageService.setExhibitorID(obj.companyId)
+    localstorageService.setExhibitionID(obj.exhibitionId)
+
+    const token = localstorageService.getToken()
+    if (!token) {
+      return this.$router.push({ path: '/questToken' })
+    }
+    this.invite().then(() => {
+      this.msgConfig() // 获取wx config
+    })
   },
   updated() {
     document.title = this.inviteData.CompName
@@ -245,31 +231,35 @@ export default {
       const url = {
         url: paramsUrl
       }
-      this.$http.post('/api/wechat/config/share', url).then(doc => {
-        this.$store.commit('setJsConfig', { jsConfig: doc.data.jsConfig })
+      wechatService.getJsConfig().then(res => {
+        this.$store.commit('setJsConfig', { jsConfig: res.data })
         wx.config({
-          ...doc.data.jsConfig,
+          ...res.data,
           jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
         })
-        this.shareMsg()
       })
-    },
-    buildPro() {
-      // 制作
-      this.isLogin()
-      this.$http
-        .get('/api/access/customer', { headers: { Authorization: this.token } })
-        .then(({ data }) => {
-          if (data.StatusCode === 200) {
-            // 如果有数据 则跳转到已注册页面
-            if (data.Data) {
-              localStorage.setItem('customerInfo', JSON.stringify(data.Data))
-              this.$store.commit('setCustomerInfo', { customerInfo: data.Data })
 
-              this.$router.push({ path: '/company_info' })
-            }
-          }
-        })
+      this.shareMsg()
+    },
+    async buildPro() {
+      // 制作
+      const isLogin = await this.isLogin()
+      if (!isLogin) {
+        return
+      }
+      // this.$http
+      //   .get('/api/access/customer', { headers: { Authorization: this.token } })
+      //   .then(({ data }) => {
+      //     if (data.StatusCode === 200) {
+      //       // 如果有数据 则跳转到已注册页面
+      //       if (data.Data) {
+      //         localstorageService.setCustomerInfo(data.Data)
+      //         this.$store.commit('setCustomerInfo', { customerInfo: data.Data })
+
+      //         this.$router.push({ path: '/company_info' })
+      //       }
+      //     }
+      //   })
     },
     helpHe() {
       // 助力
@@ -286,313 +276,227 @@ export default {
       }
     },
     isLogin() {
-      // 登录
-      localStorage.removeItem('redirectTo') // 清空链接 默认重定向到邀请函页面
-      if (!this.token || this.token === '') {
-        this.$router.push({ path: '/questToken' })
-      } else {
+      return new Promise((resolve, reject) => {
         // 获取用户信息
-        this.$http
-          .get('/api/userinfo', { headers: { Authorization: this.token } })
-          .then(({ data }) => {
+        userService
+          .getUserInfo()
+          .then(data => {
             //点赞状态
-            if (data.StatusCode === 200) {
-              localStorage.setItem('userInfo', JSON.stringify(data.Data))
-              this.$store.commit('setUserInfo', { userInfo: data.Data })
-            }
-            this.getDz() // 获取点赞
-            this.setFollower()
+            localstorageService.setUserInfo(data)
+            this.$store.commit('setUserInfo', { userInfo: data })
+            resolve(true)
           })
           .catch(err => {
             this.$router.push({ path: '/questToken' })
+            reject(false)
           })
-      }
-    },
-    invite() {
-      this.isLogin()
-      // 获取公司信息
-      this.$http.get('/api/compinfo/' + this.compId).then(doc => {
-        let myInviteData = doc.data
-        if (myInviteData.StatusCode === 200) {
-          this.inviteData = myInviteData.Data
-          console.log(myInviteData)
-          if (myInviteData.Data.Banner) {
-            this.banner = JSON.parse(
-              myInviteData.Data.Banner.replace(/\\'/g, '"')
-            )
-          } else {
-            this.banner = null
-          }
-          this.startDate = this.ExDate(myInviteData.Data.ExStartDate)
-          this.endDate = this.ExDate(myInviteData.Data.ExEndDate)
-          this.$store.commit('setInvite', { invite: myInviteData.Data })
-          localStorage.setItem('invite', JSON.stringify(myInviteData.Data))
-        }
       })
+    },
+    async invite() {
+      const isLogin = await this.isLogin()
+      if (!isLogin) {
+        return
+      }
+
+      // 获取是否点赞
+      this.checkHasLike()
+      // 添加围观
+      this.doLooker()
+
+      // 获取展商、展会信息
+      Promise.all([
+        exhibitorService.fetchExhibitorInfo(
+          localstorageService.getExhibitorID()
+        ),
+        exhibitionService.fetchExhibitionInfo(
+          localstorageService.getExhibitionID()
+        )
+      ]).then(([exhibitor, exhibition]) => {
+        this.inviteData = Object.assign({}, exhibitor, exhibition)
+        localstorageService.setInviteInfo(this.inviteData)
+      })
+
       // 获取产品
-      this.$http
-        .post('/api/product/page', {
-          CompId: this.compId
+      productService
+        .getProductList(localstorageService.getExhibitorID())
+        .then(data => {
+          this.productList = data
         })
-        .then(doc => {
-          let product = doc.data
-          if (product.StatusCode === 200) {
-            this.cardList = product.Data.List
-          }
-        })
+
       // 获取活动
-      this.$http
-        .post('/api/activity/page', {
-          CompId: this.compId,
-          PageSize: 10,
-          PageIndex: 1
+      activityService
+        .getActivities(localstorageService.getExhibitorID())
+        .then(activities => {
+          this.activityList = activities
         })
-        .then(doc => {
-          let activity = doc.data
-          this.activityCount = doc.data.Data.Total
-          if (activity.StatusCode === 200) {
-            this.activityList = activity.Data.List
-            this.activityList.forEach(item => {
-              this.activityStartDate.push(this.ExDate(item.StartDate))
-              this.activityEndDate.push(this.ExDate(item.EndDate))
-            })
-          }
+
+      // 获取活动总数
+      activityService
+        .getActivitiesCount(localstorageService.getExhibitorID())
+        .then(count => {
+          this.activityTotalCount = count
         })
-      // 获取助力
-      this.$http
-        .post('/api/help/page', {
-          CompId: this.compId
+
+      // // 获取助力
+      helpService
+        .getHelpers(localstorageService.getExhibitorID())
+        .then(helpers => {
+          this.helpList = helpers
         })
-        .then(doc => {
-          let help = doc.data
-          this.HelpCount = doc.data.Data.Total
-          if (help.StatusCode === 200) {
-            this.helpList = help.Data.List
-          }
+
+      helpService
+        .getHelpersCount(localstorageService.getExhibitorID())
+        .then(count => {
+          this.helpTotalCount = count
         })
-      // 获取所有点赞
-      this.$http
-        .post('/api/zan/page', {
-          CompId: this.compId
-        })
-        .then(doc => {
-          let praise = doc.data
-          this.ZanCount = doc.data.Data.Total
-          if (praise.StatusCode === 200) {
-            praise.Data.List.forEach(element => {
-              this.praiseList.push(JSON.parse(element.Users))
-            })
-          }
-        })
-    },
-    ExDate(da) {
-      //格式化日期
-      var arr = da.split('T')
-      var arr2 = arr[0].split('-')
-      var date = new Date(arr2[0], arr2[1], arr2[2])
-      var month = date.getMonth()
-      var day = date.getDate()
-      return month + '月' + day + '日'
-    },
-    mytogglePop: function(event) {
-      this.popupVisible = !this.popupVisible
+
+      // // // 获取所有点赞
+      // likeService
+      //   .getLikers(localstorageService.getExhibitorID())
+      //   .then(likers => {
+      //     this.likeList = likers
+      //   })
+
+      // likeService
+      //   .getLikersCount(localstorageService.getExhibitorID())
+      //   .then(count => {
+      //     this.likeTotalCount = count
+      //   })
+
+      // // // 获取所有点赞
+      // lookerService
+      //   .getLookers(localstorageService.getExhibitorID())
+      //   .then(lookers => {
+      //     this.lookers = lookers
+      //   })
+
+      // lookerService
+      //   .getLookersCount(localstorageService.getExhibitorID())
+      //   .then(count => {
+      //     this.lookerTotalCount = count
+      //   })
     },
     myloadMore: function(event) {
       //活动
       this[event] = !this[event]
     },
-    loadingActivity() {
+    loadMoreActivity() {
       //加载活动
-      this.$http
-        .post('/api/activity/page', {
-          CompId: this.compId,
-          PageIndex: ++this.count
-        })
-        .then(doc => {
-          let activity = doc.data
-          this.activityCount = doc.data.Data.Total
-          setTimeout(() => {
-            if (activity.StatusCode === 200) {
-              this.activityList.push(...activity.Data.List)
-              activity.Data.List.forEach(item => {
-                this.activityStartDate.push(this.ExDate(item.StartDate))
-                this.activityEndDate.push(this.ExDate(item.EndDate))
-              })
-            }
-            if (this.count === activity.Data.TotalPage) {
-              this.showA = false
-            }
-            this.loadActivity = false
-          }, 200)
+      activityService
+        .getActivities(
+          localstorageService.getExhibitorID(),
+          ++this.activityPageIndex
+        )
+        .then(activities => {
+          this.activityList.push(...activities)
+          if (this.activityList.length === this.activityTotalCount) {
+            this.neddLoadMoreActivities = false
+          }
+          this.loadingActivity = false
         })
     },
-    loadingHelp() {
+    loadMoreHelp() {
       //加载助力
-      this.$http
-        .post('/api/help/page', {
-          CompId: this.compId,
-          PageIndex: ++this.hcoun
-        })
-        .then(doc => {
-          let help = doc.data
-          this.HelpCount = doc.data.Data.Total
-          setTimeout(() => {
-            if (help.StatusCode === 200) {
-              this.helpList.push(...help.Data.List)
-            }
-            if (this.hcoun === help.Data.TotalPage) {
-              this.showH = false
-            }
-            this.loadStong = false
-          }, 200)
+      helpService
+        .getHelpers(localstorageService.getExhibitorID(), ++this.helpPageIndex)
+        .then(helpers => {
+          this.helpList.push(...helpers)
+          if (this.helpList.length === this.helpTotalCount) {
+            this.neddLoadMoreHelp = false
+          }
+          this.loadingHelp = false
         })
     },
-    loadingLookers() {
+    loadMoreLookers() {
       // 加载围观
-      this.$http
-        .post('/api/follower/page', {
-          CompId: this.compId,
-          PageIndex: ++this.lookCount
-        })
-        .then(doc => {
-          let lookers = doc.data
-          setTimeout(() => {
-            if (lookers.StatusCode === 200) {
-              this.onlookers.push(...lookers.Data.List)
-            }
-            if (this.lookCount === lookers.Data.TotalPage) {
-              this.showLook = false
-            }
-            this.loadPeople = false
-          }, 200)
+      lookerService
+        .getLookers(
+          localstorageService.getExhibitorID(),
+          ++this.lookerPageIndex
+        )
+        .then(lookers => {
+          this.lookers.push(...lookers)
+          if (this.lookers.length === this.lookerTotalCount) {
+            this.needLoadMoreLooker = false
+          }
+          this.loadingLooker = false
         })
     },
-    // loadingPraise() { //点赞
-    //     this.$http.post('/api/zan/page',{
-    //         "CompId":this.compId,
-    //         "PageIndex":++this.praiseCount
-    //     }).then((doc) => {
-    //         let praise = doc.data;
-    //         if(praise.StatusCode === 200) {
-    //             praise.Data.List.forEach(element => {
-    //                  this.praiseList.push(JSON.parse(element.Users));
-    //             });
-    //             if(this.praiseCount === praise.Data.TotalPage){
-    //                 this.praiseShow = false;
-    //             }
-    //         }
-    //         this.loadpraise = false;
-    //     })
-    // },
-    currentUser() {},
-    dzClick() {
-      this.isLogin()
-      if (this.isLike) {
+
+    async doLike() {
+      if (this.hasLike) {
         this.$dialog.toast({
           mes: '你已经点过赞了！',
           timeout: 1200
         })
       } else {
         // 获取是否点赞
-        this.$http
-          .post(
-            '/api/zan',
-            { CompId: this.compId },
-            { headers: { Authorization: this.token } }
-          )
-          .then(doc => {
-            //点赞状态
-            if (doc.data.StatusCode === 200) {
-              this.isLike = true
-              this.getDz()
-            }
+        likeService
+          .doLike(localstorageService.getExhibitorID())
+          .then(() => {
+            this.hasLike = true
+          })
+          .catch(() => {
+            this.$dialog.toast({
+              mes: '服务器繁忙，请尝试重新点赞！',
+              timeout: 1200
+            })
+            this.hasLike = false
           })
       }
     },
-    getDz() {
+    checkHasLike() {
       // 获取是否点赞
-      this.$http
-        .get('/api/zan/iszan/by?compId=' + this.compId, {
-          headers: { Authorization: this.token }
-        })
-        .then(doc => {
-          //点赞状态
-          if (doc.data.StatusCode === 200) {
-            this.isLike = doc.data.Data.result
-          }
+      likeService
+        .hasLike(localstorageService.getExhibitorID())
+        .then(hasLike => {
+          this.hasLike = hasLike
         })
     },
-    setFollower() {
-      const body = { CompId: this.compId }
-      const headers = { headers: { Authorization: this.token } }
-      const that = this
-      const proFollower = new Promise(function(resolve, reject) {
-        that.$http.post('/api/follower', body, headers).then(doc => {
-          // 添加围观
-          if (doc.data.StatusCode === 200 && doc.data.Data.result) {
-            resolve()
-          }
-        })
-      })
-      proFollower.then(() => {
-        // 获取围观页
-        that.$http.post('/api/follower/page', body).then(doc => {
-          let look = doc.data
-          this.FollowerCount = doc.data.Data.Total
-          if (look.StatusCode === 200) {
-            this.onlookers = look.Data.List
-          }
-        })
-      })
+    doLooker() {
+      lookerService.doLooker(localstorageService.getExhibitorID())
     },
     shareMsg() {
-      const headers = { headers: { Authorization: this.token } }
-      let temp = ''
-      this.$http
-        .get('/api/sharetemp/by?compId=' + this.compId, headers)
-        .then(doc => {
-          temp = doc.data.Data.temp
-          wx.ready(function() {
-            wx.onMenuShareAppMessage({
-              title: temp.Title,
-              desc: temp.Desc,
-              link: location.origin + '/compid/' + this.compId,
-              imgUrl: temp.Logo,
-              success: function(res) {}
-            })
-            wx.onMenuShareTimeline({
-              title: temp.Title,
-              desc: temp.Desc,
-              link: location.origin + '/compid/' + this.compId,
-              imgUrl: temp.Logo,
-              success: function(res) {}
-            })
-            wx.hideMenuItems({
-              menuList: [
-                'menuItem:copyUrl',
-                'menuItem:originPage',
-                'menuItem:openWithQQBrowser',
-                'menuItem:openWithSafari',
-                'menuItem:share:email',
-                'menuItem:share:brand',
-                'menuItem:share:qq',
-                'menuItem:share:weiboApp',
-                'menuItem:share:facebook',
-                'menuItem:share:QZone'
-              ],
-              success: function(res) {
-                //console.log(JSON.stringify(res));
-              },
-              fail: function(res) {
-                //console.log(JSON.stringify(res));
-              }
-            })
-          })
-
-          wx.error(function(res) {
-            wx.hideOptionMenu()
-          })
+      wx.ready(function() {
+        wx.onMenuShareAppMessage({
+          title: this.inviteData.CompName,
+          desc: this.inviteData.Introduction,
+          link: location.origin + '/compid/' + this.compId,
+          imgUrl: this.inviteData.Logo,
+          success: function(res) {}
         })
+        wx.onMenuShareTimeline({
+          title: this.inviteData.CompName,
+          desc: this.inviteData.Introduction,
+          link: location.origin + '/compid/' + this.compId,
+          imgUrl: this.inviteData.Logo,
+          success: function(res) {}
+        })
+        wx.hideMenuItems({
+          menuList: [
+            'menuItem:copyUrl',
+            'menuItem:originPage',
+            'menuItem:openWithQQBrowser',
+            'menuItem:openWithSafari',
+            'menuItem:share:email',
+            'menuItem:share:brand',
+            'menuItem:share:qq',
+            'menuItem:share:weiboApp',
+            'menuItem:share:facebook',
+            'menuItem:share:QZone'
+          ],
+          success: function(res) {
+            //console.log(JSON.stringify(res));
+          },
+          fail: function(res) {
+            //console.log(JSON.stringify(res));
+          }
+        })
+      })
+
+      wx.error(function(res) {
+        wx.hideOptionMenu()
+      })
     }
   }
 }
