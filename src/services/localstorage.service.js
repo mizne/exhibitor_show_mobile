@@ -48,7 +48,12 @@ class LocalStorageService {
     const token = localStorage.getItem('Token')
     if (token) {
       const hasExpired = Number(this.getExpiresIn()) <= new Date().getTime()
-      return hasExpired ? '' : token
+      if (hasExpired) {
+        localStorage.removeItem('ExpiresIn')
+        localStorage.removeItem('Token')
+        return ''
+      }
+      return token
     }
     return ''
   }

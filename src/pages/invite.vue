@@ -226,21 +226,7 @@ export default {
     document.title = this.inviteData.CompName
   },
   methods: {
-    msgConfig() {
-      const paramsUrl = location.origin + location.pathname
-      const url = {
-        url: paramsUrl
-      }
-      wechatService.getJsConfig().then(res => {
-        this.$store.commit('setJsConfig', { jsConfig: res.data })
-        wx.config({
-          ...res.data,
-          jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
-        })
-      })
-
-      this.shareMsg()
-    },
+    msgConfig() {},
     async buildPro() {
       // 制作
       const isLogin = await this.isLogin()
@@ -310,10 +296,20 @@ export default {
         ),
         exhibitionService.fetchExhibitionInfo(
           localstorageService.getExhibitionID()
-        )
-      ]).then(([exhibitor, exhibition]) => {
+        ),
+        wechatService.getJsConfig()
+      ]).then(([exhibitor, exhibition, config]) => {
         this.inviteData = Object.assign({}, exhibitor, exhibition)
         localstorageService.setInviteInfo(this.inviteData)
+
+        console.log(config)
+        this.$store.commit('setJsConfig', { jsConfig: config })
+        wx.config({
+          ...config,
+          jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
+        })
+
+        this.shareMsg()
       })
 
       // 获取产品
@@ -457,7 +453,7 @@ export default {
       lookerService.doLooker(localstorageService.getExhibitorID())
     },
     shareMsg() {
-      wx.ready(function() {
+      wx.ready(() => {
         wx.onMenuShareAppMessage({
           title: this.inviteData.CompName,
           desc: this.inviteData.Introduction,
@@ -486,10 +482,10 @@ export default {
             'menuItem:share:QZone'
           ],
           success: function(res) {
-            //console.log(JSON.stringify(res));
+            console.log(JSON.stringify(res))
           },
           fail: function(res) {
-            //console.log(JSON.stringify(res));
+            console.log(JSON.stringify(res))
           }
         })
       })

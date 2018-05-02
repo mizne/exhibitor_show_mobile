@@ -3,7 +3,7 @@ import local from './localstorage.service'
 
 class WechatService {
   getJsConfig() {
-    return axios.get('/oauth/wechat-jsconfig')
+    return axios.get('/oauth/wechat-jsconfig').then(res => res.data)
   }
 
   getJsConfigShare(url) {
